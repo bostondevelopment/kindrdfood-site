@@ -55,8 +55,8 @@
             <span class="stat-label">ActiveRecord models · 41 controllers · ~9,400 lines of Ruby</span>
           </div>
           <div class="stat">
-            <span class="stat-num">5</span>
-            <span class="stat-label">Distinct roles — Family, Dietitian, Reviewer, Admin, Editor — across two auth realms</span>
+            <span class="stat-num">3</span>
+            <span class="stat-label">User types it served — physicians, dietitians, and families — plus internal staff, across two auth realms</span>
           </div>
           <div class="stat">
             <span class="stat-num">3</span>
@@ -167,11 +167,12 @@
           <span class="engine-num">Engine 04 · Recipe allergen review</span>
           <h3>Ingredient-level allergen tagging + multi-stage QA</h3>
           <p>
-            Recipes are tagged at the ingredient level for allergens, which
-            derives the patient groups a recipe is safe for. Before a family
-            ever sees one, it moves through a multi-stage review pipeline —
-            reviewing dietitians check it and sign off — so allergen safety is
-            enforced by workflow, not by hoping the author got it right.
+            The in-house chef authors a recipe; dietitians then edit it and tag
+            it at the ingredient level for allergens, which derives the patient
+            groups it's safe for. Before a family ever sees it, the recipe moves
+            through a multi-stage review pipeline where dietitians sign off — so
+            allergen safety is enforced by workflow, not by hoping someone got
+            it right.
           </p>
         </div>
 
