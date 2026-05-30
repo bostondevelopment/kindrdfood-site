@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Building Kindrdfood — engineering deep dive</title>
+    <meta
+      name="description"
+      content="How Kindrdfood was built: a 43-table telehealth platform on Rails — live video, Stripe billing, a custom scheduling engine, a lifecycle survey engine, growth-chart z-scores, a recipe allergen-review pipeline, and IP-tracked audit versioning. Solo build."
+    />
+    <link rel="icon" type="image/jpeg" href="assets/favicon.jpg" />
+    <link rel="apple-touch-icon" href="assets/favicon.jpg" />
+    <meta name="theme-color" content="#F68D3C" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page wide">
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-brand" href="index.html">
+          <span class="brand-k">Kindrd</span><span class="brand-f">food</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html">Product</a>
+          <a href="engineering.html" class="active">Engineering</a>
+          <a href="design.html">Design</a>
+          <a href="privacy.html">Privacy</a>
+        </div>
+      </nav>
+
+      <header>
+        <p class="kicker">Portfolio · Technical deep dive</p>
+        <h1>Building Kindrdfood</h1>
+        <p class="page-lede">
+          A video-first telehealth nutrition platform — live consultations,
+          clinical charting, payments, content, and audit — designed, built,
+          and operated by one engineer on Ruby on Rails over roughly three
+          years. Here's what's inside and why it's built the way it is.
+        </p>
+      </header>
+
+      <!-- Stat grid ------------------------------------------------------ -->
+      <section>
+        <div class="stat-grid">
+          <div class="stat">
+            <span class="stat-num">43</span>
+            <span class="stat-label">Database tables across a genuine clinical + scheduling domain — not CRUD scaffolding</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">233</span>
+            <span class="stat-label">Migrations over ~3 years of continuous schema evolution</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">~40</span>
+            <span class="stat-label">ActiveRecord models · 41 controllers · ~9,400 lines of Ruby</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">5</span>
+            <span class="stat-label">Distinct roles — Family, Dietitian, Reviewer, Admin, Editor — across two auth realms</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">3</span>
+            <span class="stat-label">Billing models on Stripe — pay-per-visit, prepaid packages, recurring subscriptions</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">1</span>
+            <span class="stat-label">Solo developer — data model through AWS deployment</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tech stack ----------------------------------------------------- -->
+      <section class="card">
+        <h2>Tech stack</h2>
+        <p>
+          A pragmatic 2014-era Rails stack, chosen for breadth of integration:
+          live video, payments, background pipelines, image processing, and a
+          customized CMS all in one codebase.
+        </p>
+
+        <div class="stack-group">
+          <h3>Core</h3>
+          <div class="tech-tags">
+            <span class="tech-tag">Ruby 2.1</span>
+            <span class="tech-tag">Rails 4.1</span>
+            <span class="tech-tag">PostgreSQL</span>
+            <span class="tech-tag">Sidekiq + Redis</span>
+            <span class="tech-tag">Memcached (Dalli)</span>
+          </div>
+        </div>
+        <div class="stack-group">
+          <h3>Auth &amp; access</h3>
+          <div class="tech-tags">
+            <span class="tech-tag">Devise (multi-model)</span>
+            <span class="tech-tag">Rolify (RBAC)</span>
+            <span class="tech-tag">Pundit</span>
+            <span class="tech-tag">Invitable / Confirmable</span>
+          </div>
+        </div>
+        <div class="stack-group">
+          <h3>Integrations</h3>
+          <div class="tech-tags">
+            <span class="tech-tag">OpenTok / TokBox (video)</span>
+            <span class="tech-tag">Stripe + stripe-rails</span>
+            <span class="tech-tag">CarrierWave + AWS S3</span>
+            <span class="tech-tag">MiniMagick</span>
+            <span class="tech-tag">CKEditor + Monologue CMS</span>
+          </div>
+        </div>
+        <div class="stack-group">
+          <h3>Audit &amp; ops</h3>
+          <div class="tech-tags">
+            <span class="tech-tag">PaperTrail + Diffy</span>
+            <span class="tech-tag">Airbrake</span>
+            <span class="tech-tag">New Relic</span>
+            <span class="tech-tag">Lograge</span>
+            <span class="tech-tag">EC2 · Apache · Passenger</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- The hard parts ------------------------------------------------- -->
+      <section>
+        <h2>The hard parts</h2>
+        <p>
+          Five subsystems carry the real engineering signal — each is bespoke
+          domain logic, not a library call.
+        </p>
+
+        <div class="engine">
+          <span class="engine-num">Engine 01 · Scheduling</span>
+          <h3>Overlapping slots with cascading conflict resolution</h3>
+          <p>
+            A generator turns each dietitian's availability windows into
+            overlapping 30- and 60-minute bookable slots, with buffer handling.
+            The hard part is keeping them consistent: booking a 60-minute visit
+            cancels the two overlapping 30-minute options, and the reverse
+            re-opens them — a cascading conflict resolution that runs every
+            time availability or a booking changes.
+          </p>
+        </div>
+
+        <div class="engine">
+          <span class="engine-num">Engine 02 · Survey carry-forward</span>
+          <h3>A lifecycle questionnaire engine that threads answers</h3>
+          <p>
+            Distinct versioned questionnaires span the appointment lifecycle —
+            pre-appointment intake, session notes, final assessment. Answers
+            <em>carry forward</em>: a later form pre-populates from earlier ones,
+            so the dietitian never re-asks what the family already told us, and
+            the clinical record stays coherent across the visit.
+          </p>
+        </div>
+
+        <div class="engine">
+          <span class="engine-num">Engine 03 · Growth charts</span>
+          <h3>Pediatric percentiles and z-scores</h3>
+          <p>
+            Height and weight entries are charted against reference data to
+            produce percentiles and z-scores, plus derived nutritional
+            requirements — the kind of clinical computation a pediatric
+            nutrition product actually needs, stored and versioned per member.
+          </p>
+        </div>
+
+        <div class="engine">
+          <span class="engine-num">Engine 04 · Recipe allergen review</span>
+          <h3>Ingredient-level allergen tagging + multi-stage QA</h3>
+          <p>
+            Recipes are tagged at the ingredient level for allergens, which
+            derives the patient groups a recipe is safe for. Before a family
+            ever sees one, it moves through a multi-stage review pipeline —
+            reviewing dietitians check it and sign off — so allergen safety is
+            enforced by workflow, not by hoping the author got it right.
+          </p>
+        </div>
+
+        <div class="engine">
+          <span class="engine-num">Engine 05 · Audit &amp; versioning</span>
+          <h3>IP-tracked, field-level history with visual diffs</h3>
+          <p>
+            A custom version model captures who changed what, when, and from
+            which IP address — with field-level diffs surfaced through a bespoke
+            admin diff-and-rollback UI. The kind of compliance-minded audit
+            trail a HIPAA-adjacent product needs, and most solo apps never
+            attempt.
+          </p>
+        </div>
+      </section>
+
+      <!-- Architecture --------------------------------------------------- -->
+      <section class="card">
+        <h2>Architecture notes</h2>
+        <ul>
+          <li>
+            <strong>Presenter / decorator layer</strong> (<code>SimpleDelegator</code>-based)
+            keeps display logic — age formatting, metric conversion, full names —
+            off the ActiveRecord models.
+          </li>
+          <li>
+            <strong>Dual-identity auth.</strong> Separate <code>User</code> and
+            <code>Dietitian</code> Devise resources with namespaced controllers
+            and role-aware post-sign-in routing.
+          </li>
+          <li>
+            <strong>Self-rescheduling background workers.</strong> Sidekiq jobs
+            chain their own follow-ups — confirmation, then 1-day, then 1-week
+            reminders, with lead-time-aware cascading.
+          </li>
+          <li>
+            <strong>Environment-aware uploaders.</strong> Local files in
+            development, S3 in production, four generated image versions, and
+            interactive cropping.
+          </li>
+          <li>
+            <strong>Polymorphic domain modeling.</strong> <code>purchasable</code>,
+            <code>surveyable</code>, and <code>imageable</code> associations, a
+            self-referential role-based user graph, and many-to-many
+            family/patient-group relationships — with nearly every foreign key
+            and lookup column indexed.
+          </li>
+        </ul>
+      </section>
+
+      <!-- Lifecycle pipeline -------------------------------------------- -->
+      <section class="card">
+        <h2>A visit, end to end</h2>
+        <p>What the system orchestrates for a single appointment:</p>
+        <ol class="pipeline">
+          <li class="pipeline-stage">
+            <h3>Household onboarding</h3>
+            <p>A multi-stage registration wizard (a <code>registration_stage</code> state machine) builds the family and each member's clinical profile.</p>
+          </li>
+          <li class="pipeline-stage">
+            <h3>Book &amp; pay</h3>
+            <p>The slot engine offers conflict-free times; checkout runs through Stripe with saved cards, packages, subscriptions, or coupons.</p>
+          </li>
+          <li class="pipeline-stage">
+            <h3>Intake survey</h3>
+            <p>A pre-appointment questionnaire captures the visit's focus and threads its answers forward into the clinical record.</p>
+          </li>
+          <li class="pipeline-stage">
+            <h3>Live video visit</h3>
+            <p>An OpenTok session is provisioned per appointment with role-scoped tokens — the dietitian joins as moderator.</p>
+          </li>
+          <li class="pipeline-stage">
+            <h3>Assessment &amp; plan</h3>
+            <p>The dietitian writes session notes and an assessment, and attaches recommended articles and dietitian-reviewed recipes.</p>
+          </li>
+          <li class="pipeline-stage">
+            <h3>Audit &amp; reminders</h3>
+            <p>Every change is versioned with actor + IP; background workers schedule the follow-up reminder cascade.</p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Honest caveats ------------------------------------------------- -->
+      <section class="card">
+        <h2>What I'd own in an interview</h2>
+        <p>
+          Stated plainly, because owning the debt reads as senior:
+        </p>
+        <ul>
+          <li>
+            <strong>The test suite was scaffolding.</strong> Generated test
+            files with few real assertions; the riskiest code — billing,
+            scheduling, surveys — was under-tested. First thing I'd add today.
+          </li>
+          <li>
+            <strong>Authorization lived in the wrong layer.</strong> Pundit
+            policies were stubs; real access control sat in Devise scopes and
+            controller filters. It worked, but it belonged in policies.
+          </li>
+          <li>
+            <strong>Fat models, no service layer.</strong> Stripe charge logic
+            sat inside the <code>Purchase</code> model; the <code>User</code>
+            model grew past 400 lines. The refactor into services was intended
+            and never done.
+          </li>
+        </ul>
+      </section>
+
+      <!-- Closing -------------------------------------------------------- -->
+      <section class="closing">
+        <h2>What this proves</h2>
+        <p>
+          The impressive thing isn't the framework version — it's that
+          <em>one person</em> modeled and shipped a 43-table, multi-role,
+          payment-and-video healthcare product end to end: live video, Stripe
+          billing with coupons and subscriptions, a bespoke scheduling engine,
+          a lifecycle survey engine, pediatric clinical computation, an
+          allergen-review workflow, and compliance-minded audit. Those
+          fundamentals — domain modeling, payments, RBAC, async jobs, video,
+          audit — are exactly what I'd apply today.
+        </p>
+        <div class="contact-row">
+          <a href="https://github.com/bostondevelopment/">github.com/bostondevelopment</a>
+          <a href="mailto:bostondevelopmentco@gmail.com">bostondevelopmentco@gmail.com</a>
+        </div>
+      </section>
+
+      <footer class="site-footer">
+        <p>© Kindrdfood · Guidance to good health through great food.</p>
+        <div class="footer-links">
+          <a href="index.html">Product</a>
+          <a href="design.html">Design</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="mailto:bostondevelopmentco@gmail.com">bostondevelopmentco@gmail.com</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
