@@ -6,7 +6,7 @@
     <title>Building Kindrdfood — engineering deep dive</title>
     <meta
       name="description"
-      content="How Kindrdfood was built: a 43-table telehealth platform on Rails — live video, Stripe billing, a custom scheduling engine, a lifecycle survey engine, growth-chart z-scores, a recipe allergen-review pipeline, and IP-tracked audit versioning. Solo build."
+      content="How Kindrdfood was built: a 43-table telehealth platform on Rails — live video, Stripe billing, a custom scheduling engine, a lifecycle survey engine, growth-chart z-scores, a recipe allergen-review pipeline, and IP-tracked audit versioning. Built by the platform's technical cofounder."
     />
     <link rel="icon" type="image/jpeg" href="assets/favicon.jpg" />
     <link rel="apple-touch-icon" href="assets/favicon.jpg" />
@@ -32,9 +32,10 @@
         <h1>Building Kindrdfood</h1>
         <p class="page-lede">
           A video-first telehealth nutrition platform — live consultations,
-          clinical charting, payments, content, and audit — designed, built,
-          and operated by one engineer on Ruby on Rails over roughly three
-          years. Here's what's inside and why it's built the way it is.
+          clinical charting, payments, content, and audit. As technical
+          cofounder I was the sole engineer, designing and building it on Ruby
+          on Rails over roughly three years. Here's what's inside and why it's
+          built the way it is.
         </p>
       </header>
 
@@ -63,7 +64,7 @@
           </div>
           <div class="stat">
             <span class="stat-num">1</span>
-            <span class="stat-label">Solo developer — data model through AWS deployment</span>
+            <span class="stat-label">Sole engineer — technical cofounder, data model through AWS deployment</span>
           </div>
         </div>
       </section>
@@ -181,8 +182,8 @@
             A custom version model captures who changed what, when, and from
             which IP address — with field-level diffs surfaced through a bespoke
             admin diff-and-rollback UI. The kind of compliance-minded audit
-            trail a HIPAA-adjacent product needs, and most solo apps never
-            attempt.
+            trail a HIPAA-adjacent product needs, and few products this size
+            ever attempt.
           </p>
         </div>
       </section>
@@ -284,7 +285,7 @@
         <h2>What this proves</h2>
         <p>
           The impressive thing isn't the framework version — it's that
-          <em>one person</em> modeled and shipped a 43-table, multi-role,
+          <em>one engineer</em> modeled and shipped a 43-table, multi-role,
           payment-and-video healthcare product end to end: live video, Stripe
           billing with coupons and subscriptions, a bespoke scheduling engine,
           a lifecycle survey engine, pediatric clinical computation, an
