@@ -95,9 +95,7 @@ a:hover { text-decoration: underline; }
   color: var(--ink);
 }
 .nav-brand:hover { text-decoration: none; }
-.nav-brand img { height: 30px; width: auto; display: block; }
-.nav-brand .brand-k { color: var(--green-deep); }
-.nav-brand .brand-f { color: var(--carrot-deep); }
+.nav-brand img { height: 34px; width: auto; display: block; }
 .nav-links { display: flex; gap: 26px; }
 .nav-links a {
   color: var(--ink-soft);
@@ -148,7 +146,6 @@ a:hover { text-decoration: underline; }
 
 /* Hero ----------------------------------------------------------------- */
 .hero { margin-bottom: 28px; }
-.hero-logo { max-width: 360px; width: 100%; height: auto; margin: 0 0 22px; display: block; }
 .hero-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;

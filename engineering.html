@@ -16,8 +16,8 @@
   <body>
     <main class="page wide">
       <nav class="site-nav" aria-label="Primary">
-        <a class="nav-brand" href="index.html">
-          <span class="brand-k">Kindrd</span><span class="brand-f">food</span>
+        <a class="nav-brand" href="index.html" aria-label="Kindrdfood home">
+          <img src="assets/kindrdfood-logo-nav.png" alt="Kindrdfood" />
         </a>
         <div class="nav-links">
           <a href="index.html">Product</a>
@@ -253,32 +253,6 @@
             <p>Every change is versioned with actor + IP; background workers schedule the follow-up reminder cascade.</p>
           </li>
         </ol>
-      </section>
-
-      <!-- Honest caveats ------------------------------------------------- -->
-      <section class="card">
-        <h2>What I'd own in an interview</h2>
-        <p>
-          Stated plainly, because owning the debt reads as senior:
-        </p>
-        <ul>
-          <li>
-            <strong>The test suite was scaffolding.</strong> Generated test
-            files with few real assertions; the riskiest code — billing,
-            scheduling, surveys — was under-tested. First thing I'd add today.
-          </li>
-          <li>
-            <strong>Authorization lived in the wrong layer.</strong> Pundit
-            policies were stubs; real access control sat in Devise scopes and
-            controller filters. It worked, but it belonged in policies.
-          </li>
-          <li>
-            <strong>Fat models, no service layer.</strong> Stripe charge logic
-            sat inside the <code>Purchase</code> model; the <code>User</code>
-            model grew past 400 lines. The refactor into services was intended
-            and never done.
-          </li>
-        </ul>
       </section>
 
       <!-- Closing -------------------------------------------------------- -->
